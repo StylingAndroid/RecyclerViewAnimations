@@ -35,6 +35,8 @@ class MyAdapter(private val string: String) : RecyclerView.Adapter<MyAdapter.Vie
     inner class ViewHolder(
             itemView: View,
             private val textView: TextView = itemView.findViewById(android.R.id.text1),
+            upButton: View = itemView.findViewById(R.id.up),
+            downButton: View = itemView.findViewById(R.id.down),
             addButton: View = itemView.findViewById(R.id.add),
             removeButton: View = itemView.findViewById(R.id.remove)
     ) : RecyclerView.ViewHolder(itemView) {
@@ -42,6 +44,8 @@ class MyAdapter(private val string: String) : RecyclerView.Adapter<MyAdapter.Vie
         init {
             addButton.setOnClickListener(insert())
             removeButton.setOnClickListener(remove())
+            upButton.setOnClickListener(moveUp())
+            downButton.setOnClickListener(moveDown())
         }
 
         private fun insert(): (View) -> Unit = {
@@ -55,6 +59,24 @@ class MyAdapter(private val string: String) : RecyclerView.Adapter<MyAdapter.Vie
             layoutPosition.also { currentPosition ->
                 items.removeAt(currentPosition)
                 notifyItemRemoved(currentPosition)
+            }
+        }
+
+        private fun moveUp(): (View) -> Unit = {
+            layoutPosition.takeIf { it > 0 }?.also { currentPosition ->
+                items.removeAt(currentPosition).also {
+                    items.add(currentPosition - 1, it)
+                }
+                notifyItemMoved(currentPosition, currentPosition - 1)
+            }
+        }
+
+        private fun moveDown(): (View) -> Unit = {
+            layoutPosition.takeIf { it < items.size - 1 }?.also { currentPosition ->
+                items.removeAt(currentPosition).also {
+                    items.add(currentPosition + 1, it)
+                }
+                notifyItemMoved(currentPosition, currentPosition + 1)
             }
         }
 
