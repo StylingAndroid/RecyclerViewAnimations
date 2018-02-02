@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 
 class MyAdapter(private val string: String) : RecyclerView.Adapter<MyAdapter.ViewHolder>() {
-    private val items: MutableList<String> = mutableListOf()
+    private val items: MutableList<Pair<String, Boolean>> = mutableListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
             LayoutInflater.from(parent.context)
@@ -19,7 +19,7 @@ class MyAdapter(private val string: String) : RecyclerView.Adapter<MyAdapter.Vie
     override fun getItemCount(): Int = items.size
 
     fun appendItem(newString: String) =
-            items.add(uniqueString(newString)).also {
+            items.add(uniqueString(newString) to false).also {
                 notifyItemInserted(itemCount - 1)
             }
 
@@ -34,7 +34,8 @@ class MyAdapter(private val string: String) : RecyclerView.Adapter<MyAdapter.Vie
 
     inner class ViewHolder(
             itemView: View,
-            private val textView: TextView = itemView.findViewById(android.R.id.text1),
+            private val textView1: TextView = itemView.findViewById(android.R.id.text1),
+            private val textView2: TextView = itemView.findViewById(android.R.id.text2),
             upButton: View = itemView.findViewById(R.id.up),
             downButton: View = itemView.findViewById(R.id.down),
             addButton: View = itemView.findViewById(R.id.add),
@@ -46,11 +47,12 @@ class MyAdapter(private val string: String) : RecyclerView.Adapter<MyAdapter.Vie
             removeButton.setOnClickListener(remove())
             upButton.setOnClickListener(moveUp())
             downButton.setOnClickListener(moveDown())
+            textView1.setOnClickListener(toggleText())
         }
 
         private fun insert(): (View) -> Unit = {
             layoutPosition.also { currentPosition ->
-                items.add(currentPosition, uniqueString(string))
+                items.add(currentPosition, uniqueString(string) to false)
                 notifyItemInserted(currentPosition)
             }
         }
@@ -80,8 +82,16 @@ class MyAdapter(private val string: String) : RecyclerView.Adapter<MyAdapter.Vie
             }
         }
 
-        fun bind(text: String) {
-            textView.text = text
+        private fun toggleText(): (View) -> Unit = {
+           items[layoutPosition] = items[layoutPosition].let {
+               it.first to !it.second
+           }
+            notifyItemChanged(layoutPosition)
+        }
+
+        fun bind(data: Pair<String, Boolean>) {
+            textView1.text = data.first
+            textView2.visibility = if (data.second) View.VISIBLE else View.GONE
         }
     }
 }
