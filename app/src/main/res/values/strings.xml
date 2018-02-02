@@ -1,0 +1,5 @@
+<resources>
+  <string name="app_name">RecyclerView Animations</string>
+  <string name="new_item">New Item</string>
+  <string name="item_string">Item</string>
+</resources>
